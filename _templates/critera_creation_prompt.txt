@@ -1,0 +1,14 @@
+## Task: Please define evaluation criteria that are specific to the prompt and reflect the most important factors to assess in each solution as per your perspective and role. The weight for each criterion should be between 0 and 1 and the sum of all weights should be 1. Decide on a proper amount of criteria so that the evaluation can be processed as detailed as possible. The criteria count should be at least 6 and can be up to 16.
+
+## Prompt:
+
+{{PROMPT}}
+
+## Response format:
+
+{
+    "criterion1": weight1,
+    "criterion2": weight2,
+    "criterion3": weight3,
+    ...
+}

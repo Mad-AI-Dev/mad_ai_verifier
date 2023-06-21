@@ -1,0 +1,4 @@
+Make your decision based on following weighted criteria:
+
+{{CRITERIA}}
+

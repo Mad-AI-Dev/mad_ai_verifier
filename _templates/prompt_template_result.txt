@@ -1,0 +1,29 @@
+
+## Response Format:
+
+{
+    "criteria": [],
+    "solutions": [
+      {
+        "solution_name": str,
+        "scores": [int],
+        "weightedAverageScore": float
+      }
+    ],
+    "rankings": [
+      {
+        "solution_name": "str",
+        "weightedAverageScore": float,
+        "rank": int
+      } 
+      ],
+      "recommended_solution": 
+      {
+        "solution_name": str,
+        "weightedAverageScore": float,
+        "comment": str
+        "improvement_suggestions": [str]
+      }
+
+    ]
+  }

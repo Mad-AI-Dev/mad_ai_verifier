@@ -1,0 +1,61 @@
+import json
+import os
+
+from user_input import get_user_input, save_user_input
+from solution_loader import load_solution_files
+from verification_processor import perform_verification
+from models.gpt_model import GPTModel
+
+def user_interactive_mode():
+    print("Welcome to the Solution Verification System!")
+    
+    # Get user input
+    task_description = input("Enter the project description: ")
+    folder_path = input("Enter the folder path with solution text files: ")
+    verification_option = input("Select the verification option (simple, perspective, or AI-supported): ")
+    context_size = int(input("Enter the desired CONTEXTSIZE value: "))
+
+    # Perform verification
+    verification_results = perform_verification(task_description, folder_path, verification_option, context_size)
+    
+    # Save verification results
+    save_verification_results(verification_results)
+    
+    print("Verification completed! Results are saved in the 'output' folder.")
+
+def json_input_mode(json_file):
+    # Load user input from JSON file
+    with open(json_file) as file:
+        user_input = json.load(file)
+
+    # Extract input values
+    task_description = user_input["task_description"]
+    folder_path = user_input["folder_path"]
+    verification_option = user_input["verification_option"]
+    context_size = user_input["context_size"]
+
+    # Perform verification
+    verification_results = perform_verification(task_description, folder_path, verification_option, context_size)
+    
+    # Save verification results
+    save_verification_results(verification_results)
+    
+    print("Verification completed! Results are saved in the 'output' folder.")
+
+def save_verification_results(verification_results):
+    output_dir = "output"
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, "verification_results.md")
+    
+    # Save verification results to Markdown file
+    with open(output_file, "w") as file:
+        file.write(verification_results)
+    
+    print(f"Verification results saved to '{output_file}'.")
+
+if __name__ == "__main__":
+    # Check if running in user-interactive mode or JSON input mode
+    if len(sys.argv) > 1 and sys.argv[1].endswith(".json"):
+        json_input_mode(sys.argv[1])
+    else:
+        user_interactive_mode()

@@ -1,0 +1,14 @@
+## Task: Define perspectives for assessing solutions based on their role and perspective. Provide a funny random name for each of them. They will each be tasked to define evaluation criteria for the solutions they are assessing. Then they will be asked to assess the solutions based on their criteria. The criteria will be used to calculate the final score of the solution. The final score will be used to rank the solutions.
+
+## Prompt:
+
+{{PROMPT}}
+
+## Response format:
+
+{
+    "role1_perspective1": "name1",
+    "role2_perspective2": "name2",
+    "role3_perspective3": "name3",
+    ...
+}

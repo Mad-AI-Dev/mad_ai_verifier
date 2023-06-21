@@ -1,0 +1,78 @@
+# main.py
+
+import os
+import json
+import threading
+from . import config, load, validate, nlp_agent, error_handling, backup, profiler
+
+def main():
+    try:
+        # Load project configuration
+        config_data = config.load_config()
+
+        # Validate config data
+        if not validate.config_data(config_data):
+            raise ValueError("Invalid configuration data")
+
+        # Load and validate instructions and step template
+        instructions = load.load_instructions(config_data['instruction_file'])
+        step_template = load.load_step_template(config_data['step_template_file'])
+
+        if not validate.instructions(instructions) or not validate.step_template(step_template):
+            raise ValueError("Invalid instructions or step template")
+
+        # Prepare initial steps and result json
+        n_levels = config_data['n_levels']
+        initial_steps = prepare_initial_steps(instructions, step_template)
+        result_json = []
+
+        # Recursively perform steps
+        for level in range(n_levels):
+            # Error checking for n_levels
+            if level < 0 or not isinstance(level, int):
+                raise ValueError("Invalid level value")
+
+            # Threaded processing of steps
+            threads = []
+            for step in initial_steps:
+                t = threading.Thread(target=process_step, args=(step, result_json))
+                threads.append(t)
+                t.start()
+
+            for thread in threads:
+                thread.join()
+
+        # Error handling
+    except Exception as e:
+        error_handling.handle_error(e)
+
+def process_step(step, result_json):
+    try:
+        # Validate step
+        if not validate.step(step):
+            raise ValueError("Invalid step")
+
+        # Add step to result json
+        result_json.append(step)
+
+        # Communicate with NLP agent and validate response
+        response = nlp_agent.send_step(step)
+        if not validate.response(response):
+            raise ValueError("Invalid response from NLP agent")
+
+        # Convert response to steps and add to result json
+        response_steps = json.loads(response)
+        if not validate.steps(response_steps):
+            raise ValueError("Invalid steps in NLP agent response")
+
+        result_json.extend(response_steps)
+
+    except Exception as e:
+        error_handling.handle_error(e)
+
+def prepare_initial_steps(instructions, step_template):
+    # Prepare the initial steps based on the instructions and step template
+    pass  # Replace this with actual implementation
+
+if __name__ == "__main__":
+    main()

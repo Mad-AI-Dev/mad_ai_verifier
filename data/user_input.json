@@ -1,0 +1,10 @@
+{
+  "task_description": "The Python app described is designed to recursively expand a JSON step list. It takes a JSON file as input, containing steps and their sub-steps in a hierarchical structure. The app parses the JSON, processes the steps recursively, and displays them in a readable format. It starts by reading and parsing the JSON, then traverses the steps, recursively diving into sub-steps until it reaches the end of the hierarchy. At each step, it displays the relevant details. The app uses recursion to handle step lists of any depth and provides a clear overview of the tasks and their relationships. Overall, it's a versatile tool for expanding and visualizing JSON step lists.",
+  "folder_path": "data/app_solutions/",
+  "verification_option": "simple",
+  "CONTEXTSIZE": 3800,
+  "use_perspectives": true,
+  "perspectives": [],
+  "criteria": {},
+  "score": {}
+}

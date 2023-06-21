@@ -1,0 +1,72 @@
+import os
+import json
+from user_input import get_user_input, load_user_input_from_json
+from solution_loader import load_solutions
+from verification_processor import verify_solutions
+
+def start_interactive_mode():
+    """
+    This function prompts the user for input in an interactive mode.
+    """
+    print("Interactive Mode is now starting...\n")
+    task_description, folder_path, verification_option, CONTEXTSIZE = get_user_input()
+    return task_description, folder_path, verification_option, CONTEXTSIZE
+
+def start_json_input_mode(json_file):
+    """
+    This function loads user input from a provided JSON file.
+    """
+    print("JSON Input Mode is now starting...\n")
+    task_description, folder_path, verification_option, CONTEXTSIZE = load_user_input_from_json(json_file)
+    return task_description, folder_path, verification_option, CONTEXTSIZE
+
+def load_solutions_from_folder(folder_path):
+    """
+    This function reads solution files from a provided folder.
+    """
+    print(f"Loading solution files from: {folder_path}")
+    return load_solutions(folder_path)
+
+def start_verification_process(solutions, verification_option, CONTEXTSIZE):
+    """
+    This function initiates the verification process.
+    """
+    print("Starting verification process...\n")
+    return verify_solutions(solutions, verification_option, CONTEXTSIZE)
+
+def save_verification_results(results, output_path="output/verification_results.md"):
+    """
+    This function saves the verification results to an output file.
+    """
+    with open(output_path, 'w') as outfile:
+        outfile.write(results)
+        print(f"Verification results have been saved to: {output_path}")
+
+def main():
+    """
+    This function serves as the entry point for the application.
+    """
+    # Check if a JSON file was provided as an argument
+    if len(os.sys.argv) > 1:
+        json_file = os.sys.argv[1]
+        if not os.path.isfile(json_file):
+            print(f"Invalid file: {json_file}")
+            return
+
+        # Start JSON Input Mode
+        task_description, folder_path, verification_option, CONTEXTSIZE = start_json_input_mode(json_file)
+    else:
+        # Start Interactive Mode
+        task_description, folder_path, verification_option, CONTEXTSIZE = start_interactive_mode()
+
+    # Load Solutions
+    solutions = load_solutions_from_folder(folder_path)
+
+    # Start Verification Process
+    verification_results = start_verification_process(solutions, verification_option, CONTEXTSIZE)
+
+    # Save Verification Results
+    save_verification_results(verification_results)
+
+if __name__ == "__main__":
+    main()

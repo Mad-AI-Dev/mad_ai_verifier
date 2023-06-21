@@ -1,0 +1,51 @@
+import json
+import os
+from user_input import UserInput
+from solution_loader import SolutionLoader
+from verification_processor import VerificationProcessor
+from models.gpt_model import GPTModel
+
+class SolutionVerifier:
+    def __init__(self):
+        self.user_input = UserInput()
+        self.solution_loader = SolutionLoader()
+        self.verification_processor = VerificationProcessor()
+        self.gpt_model = GPTModel()
+
+    def start(self):
+        if len(os.sys.argv) > 1: # JSON Input Mode
+            try:
+                with open(os.sys.argv[1], 'r') as json_file:
+                    user_data = json.load(json_file)
+                    self.user_input.load_user_data(user_data)
+            except Exception as e:
+                print(f"Failed to load JSON data from file. Error: {e}")
+                return
+        else:  # User-Interactive Mode
+            self.user_input.collect_user_input()
+
+        # Load Solutions
+        solution_files = self.user_input.get_solution_files()
+        solutions = self.solution_loader.load_solutions(solution_files)
+
+        # Process Verification
+        verification_option = self.user_input.get_verification_option()
+        prompts = self.verification_processor.process_verification(solutions, verification_option)
+
+        # Choose GPT Model
+        context_size = self.user_input.get_context_size()
+        self.gpt_model.select_model(context_size)
+
+        # Get Verification Feedback
+        feedback = self.gpt_model.get_verification_feedback(prompts)
+
+        # Save Feedback
+        with open('output/verification_results.md', 'w') as feedback_file:
+            feedback_file.write(feedback)
+
+        print("Verification process completed. Check the 'output/verification_results.md' file for results.")
+        
+
+if __name__ == "__main__":
+    verifier = SolutionVerifier()
+    verifier.start()

@@ -1,0 +1,76 @@
+import json
+import os
+from config import load_project_config
+from load import load_json_file
+from validate import validate_instruction_json, validate_step_json
+from nlp_agent import communicate_with_nlp_agent
+from error_handling import log_error
+from backup import create_backup
+from profiler import run_profiler
+
+def process_step(steps_json, result_json):
+    for step in steps_json:
+        validate_step_json(step)
+        result_json.append(step)
+        response_json = communicate_with_nlp_agent(step)
+        validate_step_json(response_json)
+        substeps = response_json.get('substeps')
+        if substeps:
+            process_step(substeps, result_json)
+
+def process_steps(levels, initial_steps):
+    result_json = []
+    for _ in range(levels):
+        process_step(initial_steps, result_json)
+    return result_json
+
+def save_result_json(result_json, output_dir):
+    output_path = os.path.join(output_dir, 'result.json')
+    with open(output_path, 'w') as file:
+        json.dump(result_json, file, indent=2)
+
+def save_result_markdown(result_json, output_dir):
+    output_path = os.path.join(output_dir, 'result.md')
+    with open(output_path, 'w') as file:
+        for step in result_json:
+            file.write(f"- {step['name']}\n")
+            if 'description' in step:
+                file.write(f"  Description: {step['description']}\n")
+            if 'substeps' in step:
+                file.write("  Substeps:\n")
+                for substep in step['substeps']:
+                    file.write(f"    - {substep['name']}\n")
+                    if 'description' in substep:
+                        file.write(f"      Description: {substep['description']}\n")
+            file.write("\n")
+
+def main():
+    project_config = load_project_config()
+    instruction_json = load_json_file('templates/instruction_template.json')
+    validate_instruction_json(instruction_json)
+
+    steps_json = load_json_file('templates/step_template.json')
+    validate_step_json(steps_json)
+
+    n_levels = project_config.get('n_levels')
+    if not isinstance(n_levels, int) or n_levels <= 0:
+        log_error("Invalid number of levels. Please provide a positive integer.")
+        return
+
+    initial_steps = steps_json.get('steps')
+    validate_step_json(initial_steps)
+
+    result_json = process_steps(n_levels, initial_steps)
+
+    output_dir = 'results'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    save_result_json(result_json, output_dir)
+    save_result_markdown(result_json, output_dir)
+
+    create_backup('results')
+    run_profiler()
+
+if __name__ == '__main__':
+    main()

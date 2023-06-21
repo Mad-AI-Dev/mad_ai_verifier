@@ -1,0 +1,71 @@
+import os
+import json
+import threading
+
+from my_project import config, load, validate, nlp_agent, error_handling, backup, profiler
+
+def process_steps(steps_json, n_levels, result_json):
+    """
+    This function processes the steps recursively up to n_levels
+    """
+
+    for level in range(n_levels):
+        try:
+            # retrieve the next step
+            step = steps_json['steps'][level]
+            
+            # validate the step format before processing
+            validate.step_format(step)
+
+            # add redundancy checks and failure recovery mechanisms
+            backup.check_redundancy(step)
+
+            # add the step to the result_json object
+            result_json['steps'].append(step)
+
+            # provide the step JSON to the NLP agent
+            response = nlp_agent.communicate(step)
+
+            # validate the received response
+            validate.validate_response(response)
+
+            # convert the response string to JSON with steps
+            response_json = json.loads(response)
+
+            # extract steps from the JSON
+            new_steps_json = response_json['steps']
+
+            # recursively process new steps
+            process_steps(new_steps_json, n_levels-level-1, result_json)
+
+        except Exception as e:
+            # log the exception and continue with the next step
+            error_handling.log_exception(e)
+
+def main():
+    # Load project configuration and instructions from the JSON file
+    project_config = config.load_config()
+
+    # Load the steps JSON format from the step_template JSON file
+    steps_json = load.load_steps()
+
+    # Prepare the level of recursiveness from the configuration as n_levels
+    n_levels = project_config['n_levels']
+
+    # Perform error checking on n_levels to ensure it is a positive integer
+    validate.validate_n_levels(n_levels)
+
+    # Prepare a result_json object
+    result_json = {"steps": []}
+
+    # Process the steps using multi-threading
+    thread = threading.Thread(target=process_steps, args=(steps_json, n_levels, result_json))
+    thread.start()
+    thread.join()
+
+    # Store the final result_json as a JSON file
+    with open('results/result.json', 'w') as file:
+        json.dump(result_json, file)
+
+if __name__ == "__main__":
+    main()

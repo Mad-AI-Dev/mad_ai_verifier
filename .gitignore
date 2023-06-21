@@ -1,0 +1,14 @@
+# Ignore environment files
+*.env
+
+# Ignore environment file comments (optional)
+*.env.*
+
+# Ignore environment file backups (optional)
+*.env.backup
+
+# Ignore environment file overrides (optional)
+*.env.override
+
+__prompts/
+__pycache/

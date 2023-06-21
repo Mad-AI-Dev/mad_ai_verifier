@@ -1,0 +1,111 @@
+# main.py
+
+from my_project import config, load, validate, nlp_agent, error_handling, backup, profiler
+
+def main():
+    # Load project configuration and instructions
+    project_config = config.load_config()
+    instruction_file = project_config['instruction_file']
+    step_template_file = project_config['step_template_file']
+    n_levels = project_config['n_levels']
+    
+    try:
+        # Validate instruction file
+        validate.validate_instruction_file(instruction_file)
+        
+        # Load steps JSON format
+        steps = load.load_steps(step_template_file)
+        
+        # Validate initial steps
+        validate.validate_steps(steps)
+        
+        # Prepare result_json object
+        result_json = {
+            'steps': []
+        }
+        
+        # Perform recursion for n_levels
+        recursive_process(steps, result_json, n_levels)
+        
+        # Validate final result_json
+        validate.validate_result_json(result_json)
+        
+        # Store or output result_json
+        store_result(result_json)
+        
+        # Save result_json as a JSON file
+        save_result_as_json(result_json)
+        
+        # Generate markdown version of the JSON file and save it
+        generate_markdown(result_json)
+        
+        # Log any errors encountered during processing
+        error_handling.log_errors()
+        
+        # Consider periodic automatic backups
+        backup.create_backup()
+        
+        # Use profiler to identify and optimize performance bottlenecks
+        profiler.profile()
+        
+        # Implement rollback strategy if needed
+        # ...
+        
+        # Monitor performance and execution time, optimize if necessary
+        # ...
+        
+    except Exception as e:
+        # Handle exceptions and error messages properly
+        error_handling.handle_error(e)
+    
+
+def recursive_process(steps, result_json, n_levels):
+    if n_levels <= 0:
+        return
+    
+    for step in steps:
+        # Validate step format before processing
+        validate.validate_step(step)
+        
+        # Add step to result_json object
+        result_json['steps'].append(step)
+        
+        # Provide step JSON to NLP agent
+        response = nlp_agent.process_step(step)
+        
+        # Validate communication with NLP agent
+        validate.validate_nlp_response(response)
+        
+        # Convert response string to JSON with steps
+        response_json = load.load_steps_from_string(response)
+        
+        # Validate received response
+        validate.validate_response_json(response_json)
+        
+        # Extract steps from the JSON
+        sub_steps = response_json['steps']
+        
+        # Recursive call
+        recursive_process(sub_steps, result_json, n_levels - 1)
+
+
+def store_result(result_json):
+    # Implement functionality to store or output result_json
+    # ...
+    pass
+
+
+def save_result_as_json(result_json):
+    # Save result_json as a JSON file
+    # ...
+    pass
+
+
+def generate_markdown(result_json):
+    # Generate markdown version of the JSON file and save it
+    # ...
+    pass
+
+
+if __name__ == '__main__':
+    main()
